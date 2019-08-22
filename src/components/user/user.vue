@@ -49,11 +49,11 @@
 		</el-pagination>
 		<!--添加弹框-->
 		<el-dialog title="添加用户" :visible.sync="dialogFormVisible">
-			<el-form :model="formData">
-				<el-form-item label="用户名" label-width="100px">
+			<el-form :model="formData" :rules="rules" ref="formData">
+				<el-form-item label="用户名" label-width="100px" prop="username">
 					<el-input v-model="formData.username" autocomplete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="密码" label-width="100px">
+				<el-form-item label="密码" label-width="100px" prop="password">
 					<el-input v-model="formData.password" autocomplete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="邮箱" label-width="100px">
@@ -65,7 +65,7 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="dialogFormVisible = false">取 消</el-button>
-				<el-button type="primary" @click="addUser()">确 定</el-button>
+				<el-button type="primary" @click="addUser('formData')">确 定</el-button>
 			</div>
 		</el-dialog>
 		<!--编辑用户弹框-->
@@ -103,6 +103,13 @@
 					email: '',
 					mobile: ''
 				},
+								 // 表单验证规则
+      rules: {
+        username: [{ required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 1, max: 5, message: '长度在 1 到 5 个字符', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 1, max: 5, message: '长度在 1 到 5 个字符', trigger: 'blur' }]
+      },
 				searchValue: "",
 				total: 0,
 				pagenum: 1,
@@ -184,8 +191,11 @@ handleEdit(){
 				});
 			},
 			//			添加用户
-			addUser() {
-				const AUTH_TOKEN = localStorage.getItem("token")
+			addUser(formName) {
+//				验证
+				       this.$refs[formName].validate((valid) => {
+          if (valid) {
+            				const AUTH_TOKEN = localStorage.getItem("token")
 				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 				this.$http.post("users", this.formData).then((res) => {
 					const {
@@ -205,6 +215,12 @@ handleEdit(){
 						this.$message.error(msg);
 					}
 				})
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+
 			},
 			//			搜索
 			handleSearch() {
