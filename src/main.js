@@ -8,6 +8,7 @@ import router from './router'
 import http from "@/plugins/http.js"
 import ElementUI from 'element-ui'
 import moment from 'moment'
+import mybreak from"@/components/common/mybread.vue"
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/style.css'
 Vue.use(ElementUI)
@@ -17,6 +18,8 @@ Vue.config.productionTip = false
 Vue.filter("fmtDate",(v)=>{
 	return moment(v).format("YYYY-MM-DD")
 })
+//全局自定义组件
+Vue.component("my-bread",mybreak)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

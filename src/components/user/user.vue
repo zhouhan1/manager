@@ -299,8 +299,8 @@ setrole(){
 			},
 			//			渲染列表
 			getuserList() {
-				const AUTH_TOKEN = localStorage.getItem("token")
-				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+//				const AUTH_TOKEN = localStorage.getItem("token")
+//				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 				this.$http.get("users", {
 					params: {
 						pagenum: this.pagenum,
