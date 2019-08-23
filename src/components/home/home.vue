@@ -23,67 +23,15 @@
 			<el-aside class="aside" width="200px">
 				<el-menu default-active="2" class="menu" :unique-opened="true" :router="true">
 					<!-- 用户管理-->
-					<el-submenu index="1">
+					<el-submenu :index="item.order" v-for="(item,i) in menu" :key="i">
 						<template slot="title">
 							<i class="el-icon-location"></i>
-							<span>用戶管理</span>
+							<span>{{item.authName}}</span>
 						</template>
-						<el-menu-item index="user">
+						<el-menu-item :index="item1.path" v-for="(item1,i) in item.children" :key="i">
 							<i class="el-icon-menu"></i>
-							<span>用戶列表</span>
+							<span>{{item1.authName}}</span>
 						</el-menu-item>
-					</el-submenu>
-					<!-- 权限管理-->
-					<el-submenu index="2">
-						<template slot="title">
-							<i class="el-icon-location"></i>
-							<span>权限管理</span>
-						</template>
-						<el-menu-item index="roles">
-							<i class="el-icon-menu"></i>
-							<span> 角色列表</span>
-						</el-menu-item>
-						<el-menu-item  index="rights">
-							<i class="el-icon-menu"></i>
-							<span> 權限列表</span>
-						</el-menu-item>
-						</el-submenu>
-						<!-- 商品管理-->
-						<el-submenu index="3">
-							<template slot="title">
-								<i class="el-icon-location"></i>
-								<span>商品管理</span>
-							</template>
-							<el-menu-item>
-								<i class="el-icon-menu"></i> 商品列表
-							</el-menu-item>
-							<el-menu-item>
-								<i class="el-icon-view"></i> 分類參數
-							</el-menu-item>
-							<el-menu-item>
-								<i class="el-icon-view"></i> 商品分類
-							</el-menu-item>
-						</el-submenu>
-						<!--订单管理-->
-						<el-submenu index="4">
-							<template slot="title">
-								<i class="el-icon-location"></i>
-								<span>訂單管理</span>
-							</template>
-							<el-menu-item>
-								<i class="el-icon-location"></i> 訂單列表
-							</el-menu-item>
-						</el-submenu>
-						<!--数据统计-->
-						<el-submenu index="5">
-							<template slot="title">
-								<i class="el-icon-location"></i>
-								<span>數據統計</span>
-							</template>
-							<el-menu-item>
-								<i class="el-icon-location"></i> 數據報表
-							</el-menu-item>
-						</el-submenu>
 					</el-submenu>
 				</el-menu>
 			</el-aside>
@@ -96,6 +44,11 @@
 
 <script>
 	export default {
+		data(){
+			return{
+				menu:[]
+			}
+		},
 		beforeCreate() {
 			const token = localStorage.getItem("token")
 			if(!token) {
@@ -105,7 +58,16 @@
 				this.$message.warning("请先登录");
 			}
 		},
+		created(){
+			this.getmenus()
+		},
 		methods: {
+//			获取菜单
+          getmenus(){
+          	this.$http.get("menus").then((res)=>{
+          		this.menu=res.data.data
+          	})
+          },
 			tuichu() {
 				localStorage.clear()
 				this.$router.push({

@@ -3,7 +3,7 @@
 				<!-- 面包屑-->
 		<my-bread level1="权限管理" level2="角色列表"></my-bread>
 	<!--	添加角色按钮-->
-	<el-button plain class="addbutton">添加角色</el-button>
+	<el-button plain class="addbutton" @click="dialogFormVisible = true">添加角色</el-button>
 			<!--表格-->
 		<el-table :data="roles" style="width: 100%" height="500">
 			<el-table-column type="expand">
@@ -31,7 +31,7 @@
 			<el-table-column label="操作">
 				<template slot-scope="scope">
 					<el-button type="primary" icon="el-icon-edit" circle :plain="true" size="mini" ></el-button>
-					<el-button type="danger" icon="el-icon-delete" circle :plain="true" size="mini"></el-button>
+					<el-button type="danger" icon="el-icon-delete" circle :plain="true" size="mini" @click="delrole(scope.row.id)"></el-button>
 					<el-button type="success" icon="el-icon-check" circle :plain="true" size="mini" @click="setright(scope.row)"></el-button>
 				</template>
 			</el-table-column>
@@ -52,6 +52,21 @@ default-expand-all
     <el-button type="primary" @click="setroleright()">确 定</el-button>
   </div>
 </el-dialog>
+<!--添加角色-->
+		<el-dialog title="添加角色" :visible.sync="dialogFormVisible">
+           		<el-form :model="formData">
+				<el-form-item label="角色名称" label-width="100px" prop="roleName">
+					<el-input v-model="formData.roleName" autocomplete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="角色描述" label-width="100px" prop="roleDesc">
+					<el-input v-model="formData.roleDesc" autocomplete="off"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogFormVisible = false">取 消</el-button>
+				<el-button type="primary" @click="addrole('formData')">确 定</el-button>
+			</div>
+		</el-dialog>
 	</el-card>
 </template>
 
@@ -61,6 +76,7 @@ default-expand-all
 			return{
 				roles:[],
 				rightFormVisible:false,
+				dialogFormVisible:false,
 				treelist:[],
                    defaultProps: {
                          children: 'children',
@@ -68,13 +84,32 @@ default-expand-all
                   },
                   arritem:[],
                   arrcheck:[],
-                  currroleid:-1
+                  currroleid:-1,
+                  formData:{}
 			}
 		},
 		created(){
 			this.roleslist()
 		},
 		methods:{
+//			添加角色
+addrole(form){
+	this.$http.post("roles",this.formData).then((res)=>{
+		console.log(res)
+		this.dialogFormVisible=false
+		this.roleslist()
+	})	
+},
+//			删除角色
+delrole(roleid){
+	this.$http.delete("roles/"+roleid).then((res)=>{
+		const{meta:{msg,status}}=res.data
+		if(status===200){
+			 this.$message.success(msg)
+			 this.roleslist()
+		}
+	})
+},
 //			修改权限--发送请求
 setroleright(){
 	let arr1=this.$refs.tree.getCheckedKeys()
