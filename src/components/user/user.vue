@@ -40,7 +40,7 @@
 				<template slot-scope="scope">
 					<el-button type="primary" icon="el-icon-edit" circle :plain="true" size="mini" @click="edit(scope.row)"></el-button>
 					<el-button type="danger" icon="el-icon-delete" circle :plain="true" size="mini" @click="del(scope.row.id)"></el-button>
-					<el-button type="success" icon="el-icon-check" circle :plain="true" size="mini"></el-button>
+					<el-button type="success" icon="el-icon-check" circle :plain="true" size="mini" @click="role(scope.row)"></el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -69,26 +69,41 @@
 			</div>
 		</el-dialog>
 		<!--编辑用户弹框-->
-		       <el-dialog title="编辑用户" :visible.sync="editUserDialogFormVisible">
-      <el-form
-      ref="myform"
-      label-width="100px"
-      :model="formData">
-        <el-form-item label="用户名" prop="username" >
-          <el-input disabled v-model="formData.username" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱">
-         <el-input v-model="formData.email" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="电话">
-         <el-input v-model="formData.mobile" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="editUserDialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleEdit">确 定</el-button>
-      </div>
-</el-dialog>
+		<el-dialog title="编辑用户" :visible.sync="editUserDialogFormVisible">
+			<el-form ref="myform" label-width="100px" :model="formData">
+				<el-form-item label="用户名" prop="username">
+					<el-input disabled v-model="formData.username" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="邮箱">
+					<el-input v-model="formData.email" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="电话">
+					<el-input v-model="formData.mobile" auto-complete="off"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="editUserDialogFormVisible = false">取 消</el-button>
+				<el-button type="primary" @click="handleEdit">确 定</el-button>
+			</div>
+		</el-dialog>
+		<!--分配角色-->
+		<el-dialog title="分配角色" :visible.sync="roleFormVisible">
+			<el-form>
+				<el-form-item label="用户名" label-width="100px">
+					{{roleusername}}
+				</el-form-item>
+				<el-form-item label="角色" label-width="100px">
+					      <el-select v-model="rolerid">
+                          <el-option label="请选择" :value="-1"></el-option>
+                          <el-option :label="item.roleName" :value="item.id" v-for="(item,i) in roleslist" :key="i"></el-option>
+                 </el-select>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="roleFormVisible = false">取 消</el-button>
+				<el-button type="primary" @click="setrole()">确 定</el-button>
+			</div>
+		</el-dialog>
 	</el-card>
 </template>
 <script>
@@ -96,69 +111,121 @@
 		data() {
 			return {
 				dialogFormVisible: false,
-				editUserDialogFormVisible:false,
+				editUserDialogFormVisible: false,
+				roleFormVisible: false,
 				formData: {
 					username: '',
 					password: '',
 					email: '',
 					mobile: ''
 				},
-								 // 表单验证规则
-      rules: {
-        username: [{ required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 1, max: 5, message: '长度在 1 到 5 个字符', trigger: 'blur' }],
-        password: [{ required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 1, max: 5, message: '长度在 1 到 5 个字符', trigger: 'blur' }]
-      },
+				// 表单验证规则
+				rules: {
+					username: [{
+							required: true,
+							message: '请输入用户名',
+							trigger: 'blur'
+						},
+						{
+							min: 1,
+							max: 5,
+							message: '长度在 1 到 5 个字符',
+							trigger: 'blur'
+						}
+					],
+					password: [{
+							required: true,
+							message: '请输入密码',
+							trigger: 'blur'
+						},
+						{
+							min: 1,
+							max: 5,
+							message: '长度在 1 到 5 个字符',
+							trigger: 'blur'
+						}
+					]
+				},
 				searchValue: "",
 				total: 0,
 				pagenum: 1,
 				pagesize: 2,
-				tableData: []
+				tableData: [],
+				roleusername:"",
+				roleslist:[],
+				rolerid:"",
+				rolsuserid:""
 			}
 		},
 		created() {
 			this.getuserList()
 		},
 		methods: {
-//			用户状态
-handleSwitchChange(user){
-							const AUTH_TOKEN = localStorage.getItem("token")
+			//			分配角色
+			role(roles) {
+				this.roleFormVisible = true
+				this.roleusername=roles.username
+				this.rolsuserid=roles.id
+			this.$http.get("roles").then((res)=>{
+					this.roleslist=res.data.data
+				})
+			this.$http.get("users/"+this.rolsuserid).then((res)=>{
+				this.rolerid=res.data.data.rid
+			})
+			},
+//			编辑角色
+setrole(){
+	this.$http.put('users/'+this.rolsuserid+'/role',{rid:this.rolerid}).then((res)=>{
+		this.roleFormVisible = false
+	})
+},
+			//			用户状态
+			handleSwitchChange(user) {
+				const AUTH_TOKEN = localStorage.getItem("token")
 				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-				this.$http.put("users/"+user.id+"/state/"+user.mg_state).then((res)=>{
-					const{data,meta:{msg,status}}=res.data
-					if(status===200){
+				this.$http.put("users/" + user.id + "/state/" + user.mg_state).then((res) => {
+					const {
+						data,
+						meta: {
+							msg,
+							status
+						}
+					} = res.data
+					if(status === 200) {
 						console.log(res.data)
 						this.$message.success(msg)
-					}else{
+					} else {
 						this.$message.error(msg)
 					}
 				})
-},
-//			编辑用户
-edit(id){
-	this.formData=id
-	this.editUserDialogFormVisible=true	
-},
-handleEdit(){
-						const AUTH_TOKEN = localStorage.getItem("token")
+			},
+			//			编辑用户
+			edit(id) {
+				this.formData = id
+				this.editUserDialogFormVisible = true
+			},
+			handleEdit() {
+				const AUTH_TOKEN = localStorage.getItem("token")
 				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-				this.$http.put("users/"+this.formData.id,{mobile:this.formData.mobile,email:this.formData.email}).then((res)=>{
-								const {
+				this.$http.put("users/" + this.formData.id, {
+					mobile: this.formData.mobile,
+					email: this.formData.email
+				}).then((res) => {
+					const {
 						meta: {
 							status,
 							msg
 						}
 					} = res.data
-					if(status === 200){
-						this.editUserDialogFormVisible=false
+					if(status === 200) {
+						this.editUserDialogFormVisible = false
 						this.$message.success(msg)
-						this.editData={}
-					}else{
+						this.editData = {}
+					} else {
 						this.$message.error(msg)
 					}
 				})
-},
+			},
 			//			删除用户
 			del(id) {
 				this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
@@ -192,34 +259,34 @@ handleEdit(){
 			},
 			//			添加用户
 			addUser(formName) {
-//				验证
-				       this.$refs[formName].validate((valid) => {
-          if (valid) {
-            				const AUTH_TOKEN = localStorage.getItem("token")
-				this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-				this.$http.post("users", this.formData).then((res) => {
-					const {
-						meta: {
-							status,
-							msg
-						}
-					} = res.data
-					if(status === 201) {
-						//						添加成功了
-						this.dialogFormVisible = false
-						// 提示成功
-						this.$message.success(msg)
-						//          清空数据
-						this.formData = {}
+				//				验证
+				this.$refs[formName].validate((valid) => {
+					if(valid) {
+						const AUTH_TOKEN = localStorage.getItem("token")
+						this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+						this.$http.post("users", this.formData).then((res) => {
+							const {
+								meta: {
+									status,
+									msg
+								}
+							} = res.data
+							if(status === 201) {
+								//						添加成功了
+								this.dialogFormVisible = false
+								// 提示成功
+								this.$message.success(msg)
+								//          清空数据
+								this.formData = {}
+							} else {
+								this.$message.error(msg);
+							}
+						})
 					} else {
-						this.$message.error(msg);
+						console.log('error submit!!');
+						return false;
 					}
-				})
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
+				});
 
 			},
 			//			搜索
