@@ -23,7 +23,7 @@
 			<el-aside class="aside" width="200px">
 				<el-menu default-active="2" class="menu" :unique-opened="true" :router="true">
 					<!-- 用户管理-->
-					<el-submenu :index="item.order" v-for="(item,i) in menu" :key="i">
+					<el-submenu :index="item.order.toString()" v-for="(item,i) in menu" :key="i">
 						<template slot="title">
 							<i class="el-icon-location"></i>
 							<span>{{item.authName}}</span>
@@ -49,15 +49,16 @@
 				menu:[]
 			}
 		},
-		beforeCreate() {
-			const token = localStorage.getItem("token")
-			if(!token) {
-				this.$router.push({
-					name: "login"
-				})
-				this.$message.warning("请先登录");
-			}
-		},
+//		beforeCreate() {
+//			const token = localStorage.getItem("token")
+//			console.log(token)
+//			if(!token) {
+//				this.$router.push({
+//					name: "login"
+//				})
+//				this.$message.warning("请先登录");
+//			}
+//		},
 		created(){
 			this.getmenus()
 		},
