@@ -7,6 +7,8 @@ import Rights from '@/components/rights/rights.vue'
 import Roles from '@/components/rights/roles.vue'
 import Goodslist from '@/components/goods/goodslist.vue'
 import Goodsadd from '@/components/goods/goodsadd.vue'
+import Cate from "@/components/goods/cate.vue"
+import Goodscate from "@/components/goods/goodscate.vue"
 Vue.use(Router)
 
 const router = new Router({
@@ -32,7 +34,7 @@ const router = new Router({
       component:Roles,
       },
       {
-      name:"goods",
+      name:"goodslist",
       path: '/goods',
       component:Goodslist,
       },
@@ -40,7 +42,17 @@ const router = new Router({
       name:"goodsadd",
       path: '/goodsadd',
       component:Goodsadd,
-      } 
+      },
+       {
+      name:"cate",
+      path: '/params',
+      component:Cate
+      } ,
+       {
+      name:"goodscate",
+      path: '/categories',
+      component:Goodscate
+      }      
       ]
     },
     {
