@@ -12,7 +12,7 @@
 			</el-col>
 		</el-row>
 				<!--表格-->
-	<!--<el-table :data="tableData" style="width: 100%" height="350">
+	<el-table :data="tableData" style="width: 100%" height="350">
 			<el-table-column type="index" label="#" width="50">
 			</el-table-column>
 			<el-table-column prop="goods_name" label="商品名称" width="380">
@@ -33,7 +33,7 @@
 					<el-button type="success" icon="el-icon-check" circle :plain="true" size="mini"></el-button>
 				</template>
 			</el-table-column>
-		</el-table>-->
+		</el-table>
 		<!--分页-->
 		 <el-pagination
 		 	@size-change="handleSizeChange" 
@@ -51,7 +51,7 @@
 	export default{
 		data(){
 			return{
-				tableData:{},
+				tableData:[],
 				searchValue: "",
 				pagenum: 1,
 				pagesize:50,
